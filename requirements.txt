@@ -1,0 +1,7 @@
+ultralytics
+opencv-python
+flask
+pandas
+numpy
+pillow
+flask-sqlalchemy

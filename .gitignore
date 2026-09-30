@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.cache
+.pytest_cache/
+
+# Local environments and editor state
+safeenv/
+.venv/
+venv/
+.vscode/
+.idea/
+
+# Local runtime data
+*.db
+*.sqlite
+*.sqlite3
+alerts/
+archive/
+review_images/
+glove_check_image*.jpg
+
+# Training outputs and model weights
+runs/
+*.pt
+*.onnx
+*.engine
+
+# Local dataset downloads and temporary review artifacts
+glove_converted/
+glove_new_images/
+construction-ppe/
+construction-ppe.zip
+dataset/duplicate_review/
+dataset/labels-original/
+\=
+/*.jpg
+/*.jpeg
+/*.png
+/*.pdf
+/*.html

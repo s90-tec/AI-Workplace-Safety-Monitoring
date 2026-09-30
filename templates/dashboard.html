@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        AI Workplace Safety Monitoring
+    </title>
+
+
+    <style>
+
+        /* ================================
+           GLOBAL
+        ================================= */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+
+        body {
+            background: #f4f6f9;
+            color: #1f2937;
+        }
+
+
+        /* ================================
+           HEADER
+        ================================= */
+
+        .header {
+            background: #111827;
+            color: white;
+            padding: 22px 35px;
+        }
+
+
+        .header h1 {
+            font-size: 28px;
+        }
+
+
+        .header p {
+            margin-top: 6px;
+            color: #cbd5e1;
+        }
+
+
+        /* ================================
+           MAIN CONTAINER
+        ================================= */
+
+        .container {
+            padding: 30px;
+        }
+
+
+        /* ================================
+           STATISTICS CARDS
+        ================================= */
+
+        .cards {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 20px;
+
+            margin-bottom: 30px;
+
+        }
+
+
+        .card {
+
+            background: white;
+
+            padding: 25px;
+
+            border-radius: 14px;
+
+            box-shadow:
+                0 4px 15px
+                rgba(0, 0, 0, 0.08);
+
+        }
+
+
+        .card h3 {
+
+            color: #64748b;
+
+            font-size: 15px;
+
+            margin-bottom: 10px;
+
+        }
+
+
+        .card .number {
+
+            font-size: 32px;
+
+            font-weight: bold;
+
+        }
+
+
+        .card-description {
+
+            margin-top: 8px;
+
+            font-size: 13px;
+
+            color: #94a3b8;
+
+        }
+
+
+        .danger {
+            color: #dc2626;
+        }
+
+
+        .safe {
+            color: #16a34a;
+        }
+
+
+        /* ================================
+           LIVE MONITORING
+        ================================= */
+
+        .live-section {
+
+            background: white;
+
+            border-radius: 14px;
+
+            padding: 20px;
+
+            margin-bottom: 35px;
+
+            box-shadow:
+                0 4px 15px
+                rgba(0, 0, 0, 0.08);
+
+        }
+
+
+        .live-header {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 20px;
+
+        }
+
+
+        .live-header h2 {
+
+            font-size: 24px;
+
+            margin-bottom: 5px;
+
+        }
+
+
+        .live-header p {
+
+            color: #64748b;
+
+            font-size: 14px;
+
+        }
+
+
+        .live-status {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            color: #16a34a;
+
+            font-weight: bold;
+
+            background: #f0fdf4;
+
+            padding: 8px 14px;
+
+            border-radius: 20px;
+
+        }
+
+
+        .status-dot {
+
+            width: 10px;
+
+            height: 10px;
+
+            background: #16a34a;
+
+            border-radius: 50%;
+
+            display: inline-block;
+
+        }
+
+
+        .camera-container {
+
+            background: #111827;
+
+            border-radius: 12px;
+
+            overflow: hidden;
+
+            width: 100%;
+
+            min-height: 350px;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+        }
+
+
+        .live-camera {
+
+            width: 100%;
+
+            max-height: 600px;
+
+            object-fit: contain;
+
+            display: block;
+
+        }
+
+
+        .monitoring-info {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 15px;
+
+            margin-top: 20px;
+
+        }
+
+
+        .info-box {
+
+            background: #f8fafc;
+
+            border: 1px solid #e2e8f0;
+
+            border-radius: 10px;
+
+            padding: 15px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+        }
+
+
+        .info-box > span {
+
+            font-size: 28px;
+
+        }
+
+
+        .info-box strong {
+
+            display: block;
+
+            margin-bottom: 4px;
+
+        }
+
+
+        .info-box p {
+
+            font-size: 12px;
+
+            color: #64748b;
+
+        }
+
+
+        /* ================================
+           SECTION TITLE
+        ================================= */
+
+        .section-title {
+
+            margin-bottom: 15px;
+
+        }
+
+
+        /* ================================
+           TABLE
+        ================================= */
+
+        .table-container {
+
+            background: white;
+
+            border-radius: 14px;
+
+            padding: 20px;
+
+            box-shadow:
+                0 4px 15px
+                rgba(0, 0, 0, 0.08);
+
+            overflow-x: auto;
+
+        }
+
+
+        table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+        }
+
+
+        th {
+
+            background: #f1f5f9;
+
+            text-align: left;
+
+            padding: 14px;
+
+        }
+
+
+        td {
+
+            padding: 14px;
+
+            border-bottom:
+                1px solid #e5e7eb;
+
+            vertical-align: middle;
+
+        }
+
+
+        /* ================================
+           VIOLATION
+        ================================= */
+
+        .violation {
+
+            color: #dc2626;
+
+            font-weight: bold;
+
+        }
+
+
+        /* ================================
+           EVIDENCE IMAGE
+        ================================= */
+
+        .evidence-image {
+
+            width: 180px;
+
+            height: 110px;
+
+            object-fit: cover;
+
+            border-radius: 10px;
+
+            border:
+                1px solid #ddd;
+
+        }
+
+
+        /* ================================
+           EMPTY MESSAGE
+        ================================= */
+
+        .empty {
+
+            padding: 30px;
+
+            text-align: center;
+
+            color: #64748b;
+
+        }
+
+
+        .empty h3 {
+
+            margin-bottom: 8px;
+
+        }
+
+
+        /* ================================
+           MOBILE RESPONSIVE
+        ================================= */
+
+        @media (max-width: 800px) {
+
+            .cards {
+
+                grid-template-columns: 1fr;
+
+            }
+
+
+            .container {
+
+                padding: 15px;
+
+            }
+
+
+            .header {
+
+                padding: 20px;
+
+            }
+
+
+            .header h1 {
+
+                font-size: 24px;
+
+            }
+
+
+            .evidence-image {
+
+                width: 140px;
+
+                height: 90px;
+
+            }
+
+
+            .monitoring-info {
+
+                grid-template-columns: 1fr;
+
+            }
+
+
+            .live-header {
+
+                flex-direction: column;
+
+                align-items: flex-start;
+
+                gap: 10px;
+
+            }
+
+
+            .camera-container {
+
+                min-height: 250px;
+
+            }
+
+        }
+
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =================================
+         HEADER
+    ================================== -->
+
+    <div class="header">
+
+        <h1>
+
+            🛡️ AI Workplace Safety Monitoring
+
+        </h1>
+
+
+        <p>
+
+            Computer Vision Based
+            PPE Safety Monitoring System
+
+        </p>
+
+    </div>
+
+
+
+    <!-- =================================
+         MAIN CONTENT
+    ================================== -->
+
+    <div class="container">
+
+
+        <!-- =================================
+             STATISTICS
+        ================================== -->
+
+        <div class="cards">
+
+
+            <!-- Total Violations -->
+
+            <div class="card">
+
+                <h3>
+
+                    ⚠️ Total Violations
+
+                </h3>
+
+
+                <div class="number danger">
+
+                    {{ statistics.total_violations }}
+
+                </div>
+
+
+                <p class="card-description">
+
+                    Recorded safety violations
+
+                </p>
+
+            </div>
+
+
+
+            <!-- Helmet Violations -->
+
+            <div class="card">
+
+                <h3>
+
+                    🪖 Helmet Violations
+
+                </h3>
+
+
+                <div class="number danger">
+
+                    {{ statistics.helmet_violations }}
+
+                </div>
+
+
+                <p class="card-description">
+
+                    Missing helmet detections
+
+                </p>
+
+            </div>
+
+
+
+            <!-- Vest Violations -->
+
+            <div class="card">
+
+                <h3>
+
+                    🦺 Vest Violations
+
+                </h3>
+
+
+                <div class="number danger">
+
+                    {{ statistics.vest_violations }}
+
+                </div>
+
+
+                <p class="card-description">
+
+                    Missing vest detections
+
+                </p>
+
+            </div>
+
+
+
+            <!-- Glove Violations -->
+
+            <div class="card">
+
+                <h3>
+
+                    🧤 Glove Violations
+
+                </h3>
+
+
+                <div class="number danger">
+
+                    {{ statistics.glove_violations }}
+
+                </div>
+
+
+                <p class="card-description">
+
+                    Missing glove detections
+
+                </p>
+
+            </div>
+
+
+
+            <!-- Monitoring Status -->
+
+            <div class="card">
+
+                <h3>
+
+                    🟢 Monitoring Status
+
+                </h3>
+
+
+                <div class="number safe">
+
+                    ACTIVE
+
+                </div>
+
+
+                <p class="card-description">
+
+                    Safety monitoring system
+
+                </p>
+
+            </div>
+
+
+
+            <!-- PPE Monitoring -->
+
+            <div class="card">
+
+                <h3>
+
+                    🛡️ PPE Monitoring
+
+                </h3>
+
+
+                <div class="number safe">
+
+                    ON
+
+                </div>
+
+
+                <p class="card-description">
+
+                    PPE detection enabled
+
+                </p>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =================================
+             LIVE AI MONITORING
+        ================================== -->
+
+        <div class="live-section">
+
+
+            <div class="live-header">
+
+
+                <div>
+
+                    <h2>
+
+                        📹 Live AI Monitoring
+
+                    </h2>
+
+
+                    <p>
+
+                        Real-time PPE detection
+                        using YOLO
+
+                    </p>
+
+                </div>
+
+
+                <div class="live-status">
+
+                    <span class="status-dot"></span>
+
+                    LIVE
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- CAMERA -->
+
+            <div class="camera-container">
+
+
+                <img
+                    src="{{ url_for('video_feed') }}"
+                    class="live-camera"
+                    alt="Live AI Safety Monitoring"
+                >
+
+
+            </div>
+
+
+
+            <!-- MONITORING INFORMATION -->
+
+            <div class="monitoring-info">
+
+
+                <!-- AI Detection -->
+
+                <div class="info-box">
+
+                    <span>🤖</span>
+
+                    <div>
+
+                        <strong>
+                            AI Detection
+                        </strong>
+
+                        <p>
+                            YOLO PPE Detection
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Helmet -->
+
+                <div class="info-box">
+
+                    <span>🪖</span>
+
+                    <div>
+
+                        <strong>
+                            Helmet
+                        </strong>
+
+                        <p>
+                            Monitoring
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Vest -->
+
+                <div class="info-box">
+
+                    <span>🦺</span>
+
+                    <div>
+
+                        <strong>
+                            Safety Vest
+                        </strong>
+
+                        <p>
+                            Monitoring
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Gloves -->
+
+                <div class="info-box">
+
+                    <span>🧤</span>
+
+                    <div>
+
+                        <strong>
+                            Gloves
+                        </strong>
+
+                        <p>
+                            Monitoring
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =================================
+             VIOLATIONS
+        ================================== -->
+
+        <h2 class="section-title">
+
+            Recent Safety Violations
+
+        </h2>
+
+
+
+        <div class="table-container">
+
+
+            {% if violations %}
+
+
+            <table>
+
+
+                <thead>
+
+
+                    <tr>
+
+                        <th>
+                            ID
+                        </th>
+
+                        <th>
+                            Timestamp
+                        </th>
+
+                        <th>
+                            Worker
+                        </th>
+
+                        <th>
+                            Missing PPE
+                        </th>
+
+                        <th>
+                            Evidence
+                        </th>
+
+                    </tr>
+
+
+                </thead>
+
+
+
+                <tbody>
+
+
+                    {% for violation in violations %}
+
+
+                    <tr>
+
+
+                        <!-- ID -->
+
+                        <td>
+
+                            {{ violation[0] }}
+
+                        </td>
+
+
+
+                        <!-- Timestamp -->
+
+                        <td>
+
+                            {{ violation[1] }}
+
+                        </td>
+
+
+
+                        <!-- Worker -->
+
+                        <td>
+
+                            Worker {{ violation[2] }}
+
+                        </td>
+
+
+
+                        <!-- Missing PPE -->
+
+                        <td class="violation">
+
+                            ⚠ {{ violation[3] }}
+
+                        </td>
+
+
+
+                        <!-- Evidence -->
+
+                        <td>
+
+
+                            {% if violation[4] %}
+
+
+                            <img
+                                src="{{ url_for('alert_image', filename=violation[4].replace('\\', '/').split('/')[-1]) }}"
+                                class="evidence-image"
+                                alt="Safety violation evidence"
+                            >
+
+
+                            {% else %}
+
+
+                            No image
+
+
+                            {% endif %}
+
+
+                        </td>
+
+
+                    </tr>
+
+
+                    {% endfor %}
+
+
+                </tbody>
+
+
+            </table>
+
+
+            {% else %}
+
+
+            <!-- No Violations -->
+
+            <div class="empty">
+
+                <h3>
+
+                    No Safety Violations
+
+                </h3>
+
+
+                <p>
+
+                    The system has not recorded
+                    any violations yet.
+
+                </p>
+
+            </div>
+
+
+            {% endif %}
+
+
+        </div>
+
+
+    </div>
+
+
+</body>
+
+</html>
