@@ -10,8 +10,13 @@ from database import create_database, save_violation
 # ==============================
 # MODEL PATH
 # ==============================
-
-MODEL_PATH = "runs/detect/runs/ppe_safety_model_v3/weights/best.pt"
+CANDIDATE_PATHS = [
+    "runs/detect/runs/detect/runs/ppe_safety_model_v3-3/weights/best.pt",
+    "runs/detect/runs/ppe_safety_model_v3-2/weights/best.pt",
+    "runs/detect/runs/ppe_safety_model_v3/weights/best.pt",
+    "yolo11n.pt",
+]
+MODEL_PATH = next((p for p in CANDIDATE_PATHS if os.path.exists(p)), CANDIDATE_PATHS[0])
 
 
 # ==============================

@@ -159,16 +159,35 @@ def calculate_overlap_ratio(ppe_box, person_box):
 
 def check_worker_ppe(
     person_box,
-    ppe_detections
+    ppe_detections,
+    required_ppe=None
 ):
     """
     Determine which required PPE items
     belong to a particular worker.
 
-    Required PPE:
+    Required PPE (default):
         Helmet
         Vest
         Glove
+    """
+    status, missing, _ = get_worker_ppe_details(
+        person_box,
+        ppe_detections,
+        required_ppe
+    )
+    return status, missing
+
+
+def get_worker_ppe_details(
+    person_box,
+    ppe_detections,
+    required_ppe=None
+):
+    """
+    Determine which required PPE items
+    belong to a particular worker and return full details:
+    status, missing_list, detected_list
     """
 
     detected_ppe = set()
@@ -225,11 +244,14 @@ def check_worker_ppe(
     # REQUIRED PPE
     # ----------------------------------------------------
 
-    required_ppe = {
-        "Helmet",
-        "Vest",
-        "Glove"
-    }
+    if required_ppe is None:
+        required_set = {
+            "Helmet",
+            "Vest",
+            "Glove"
+        }
+    else:
+        required_set = set(required_ppe)
 
 
     # ----------------------------------------------------
@@ -237,7 +259,7 @@ def check_worker_ppe(
     # ----------------------------------------------------
 
     missing = sorted(
-        required_ppe -
+        required_set -
         detected_ppe
     )
 
@@ -247,12 +269,9 @@ def check_worker_ppe(
     # ----------------------------------------------------
 
     if missing:
-
         status = "VIOLATION"
-
     else:
-
         status = "SAFE"
 
 
-    return status, missing
+    return status, missing, sorted(detected_ppe)
