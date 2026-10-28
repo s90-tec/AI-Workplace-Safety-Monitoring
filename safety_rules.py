@@ -87,6 +87,26 @@ def point_inside_box(point, box):
     )
 
 
+def normalize_ppe_name(name):
+    normalized_name = "".join(
+        character
+        for character in name.casefold()
+        if character.isalnum()
+    )
+    aliases = {
+        "boots": "Boots",
+        "earprotection": "Ear-protection",
+        "glass": "Glass",
+        "goggle": "Glass",
+        "goggles": "Glass",
+        "glove": "Glove",
+        "helmet": "Helmet",
+        "mask": "Mask",
+        "vest": "Vest",
+    }
+    return aliases.get(normalized_name, name)
+
+
 def calculate_overlap_ratio(ppe_box, person_box):
     """
     Calculate how much of the PPE box
@@ -194,7 +214,7 @@ def get_worker_ppe_details(
 
     for item in ppe_detections:
 
-        class_name = item["class_name"]
+        class_name = normalize_ppe_name(item["class_name"])
 
         ppe_box = item["box"]
 
@@ -251,7 +271,10 @@ def get_worker_ppe_details(
             "Glove"
         }
     else:
-        required_set = set(required_ppe)
+        required_set = {
+            normalize_ppe_name(name)
+            for name in required_ppe
+        }
 
 
     # ----------------------------------------------------

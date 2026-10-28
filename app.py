@@ -4,6 +4,8 @@ from ultralytics import YOLO
 import cv2
 import os
 import time
+import glob
+import threading
 import base64
 import numpy as np
 
@@ -17,14 +19,26 @@ from database import create_database, save_violation, get_violations
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Resolve best available trained PPE weights
-CANDIDATE_PATHS = [
-    os.path.join(BASE_DIR, "runs", "detect", "runs", "detect", "runs", "ppe_safety_model_v3-3", "weights", "best.pt"),
-    os.path.join(BASE_DIR, "runs", "detect", "runs", "ppe_safety_model_v3-2", "weights", "best.pt"),
-    os.path.join(BASE_DIR, "runs", "detect", "runs", "ppe_safety_model_v3", "weights", "best.pt"),
+# Resolve the most recently trained V3 checkpoint across the existing run paths.
+RUN_WEIGHTS_PATTERN = os.path.join(
+    BASE_DIR,
+    "runs",
+    "detect",
+    "runs",
+    "**",
+    "ppe_safety_model_v*",
+    "weights",
+    "best.pt",
+)
+CANDIDATE_PATHS = sorted(
+    glob.glob(RUN_WEIGHTS_PATTERN, recursive=True),
+    key=os.path.getmtime,
+    reverse=True,
+)
+CANDIDATE_PATHS.extend([
     os.path.join(BASE_DIR, "runs", "ppe_safety_model_v3", "weights", "best.pt"),
     os.path.join(BASE_DIR, "yolo11n.pt"),
-]
+])
 
 MODEL_PATH = next((p for p in CANDIDATE_PATHS if os.path.exists(p)), CANDIDATE_PATHS[0])
 
@@ -65,12 +79,10 @@ print("YOLO model loaded successfully.")
 # CAMERA
 # ============================================================
 
-camera = cv2.VideoCapture(0)
-
-if not camera.isOpened():
-    print("ERROR: Could not open camera.")
-else:
-    print("Camera opened successfully.")
+camera = None
+camera_lock = threading.Lock()
+monitoring_active = False
+monitoring_generation = 0
 
 
 # ============================================================
@@ -87,15 +99,27 @@ ALERT_COOLDOWN = 5
 # LIVE VIDEO GENERATOR
 # ============================================================
 
-def generate_frames():
+def generate_frames(generation):
+    global camera, monitoring_active
 
     while True:
 
-        success, frame = camera.read()
+        with camera_lock:
+            if (
+                not monitoring_active
+                or generation != monitoring_generation
+                or camera is None
+            ):
+                break
 
-        if not success:
-            print("ERROR: Could not read camera frame.")
-            break
+            success, frame = camera.read()
+
+            if not success:
+                print("ERROR: Could not read camera frame.")
+                camera.release()
+                camera = None
+                monitoring_active = False
+                break
 
 
         # ----------------------------------------------------
@@ -421,6 +445,10 @@ def generate_frames():
         # ENCODE FRAME FOR BROWSER
         # ----------------------------------------------------
 
+        with camera_lock:
+            if not monitoring_active or generation != monitoring_generation:
+                break
+
         success, buffer = cv2.imencode(
             ".jpg",
             annotated_frame
@@ -507,14 +535,67 @@ def dashboard():
 
 @app.route("/video_feed")
 def video_feed():
+    with camera_lock:
+        if not monitoring_active or camera is None or not camera.isOpened():
+            return jsonify({
+                "success": False,
+                "error": "Live monitoring is stopped. Start monitoring before opening the video feed."
+            }), 409
+        generation = monitoring_generation
 
     return Response(
-        generate_frames(),
+        generate_frames(generation),
         mimetype=(
             "multipart/x-mixed-replace; "
             "boundary=frame"
         )
     )
+
+
+@app.route("/api/monitoring/status", methods=["GET"])
+def live_monitoring_status():
+    with camera_lock:
+        active = monitoring_active and camera is not None and camera.isOpened()
+    return jsonify({"active": active})
+
+
+@app.route("/api/monitoring/start", methods=["POST"])
+def start_live_monitoring():
+    global camera, monitoring_active, monitoring_generation
+
+    with camera_lock:
+        if camera is None or not camera.isOpened():
+            new_camera = cv2.VideoCapture(0)
+            if not new_camera.isOpened():
+                new_camera.release()
+                monitoring_active = False
+                return jsonify({
+                    "success": False,
+                    "active": False,
+                    "error": "Could not open camera. Check that a camera is connected and available."
+                }), 503
+            camera = new_camera
+
+        monitoring_active = True
+        monitoring_generation += 1
+
+    print("Live monitoring started.")
+    return jsonify({"success": True, "active": True})
+
+
+@app.route("/api/monitoring/stop", methods=["POST"])
+def stop_live_monitoring():
+    global camera, monitoring_active, monitoring_generation
+
+    with camera_lock:
+        monitoring_active = False
+        monitoring_generation += 1
+        if camera is not None:
+            camera.release()
+            camera = None
+
+    print("Live monitoring stopped.")
+    return jsonify({"success": True, "active": False})
 
 
 # ============================================================

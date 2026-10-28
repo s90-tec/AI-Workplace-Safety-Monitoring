@@ -24,6 +24,23 @@ These names match the original Roboflow annotations. The original metadata is
 preserved as `dataset/roboflow-export.yaml`, and the safety-violation classes
 `no_helmet`, `no_vest`, and `no_gloves` are not part of this dataset.
 
+The training, validation, and test splits also include a compatible subset of
+Roboflow's `PPE_Dectection` v4 export. Its source, CC BY 4.0 attribution, class
+mapping, and omitted negative-equipment tags are documented in
+`dataset/README.supplement.txt`. The added export contains labels for Boots,
+Gloves, Goggles, Hardhat, Person, and Safety Vest; Goggles are mapped to the
+project's Glass class. It does not add Ear-protection or Mask examples, so
+those classes remain underrepresented.
+
+The dataset also includes compatible positive PPE labels from Kaggle's
+`ppe-unified-v1` (CC BY 4.0). Its source attribution and class mapping are
+preserved in `dataset/README.kaggle.txt`. The source adds Helmet, Vest, Gloves,
+Goggles, Boots, and Mask; negative-compliance labels are omitted because this
+project detects physical PPE objects rather than "missing PPE" objects.
+Ear-protection remains unavailable from this source. After filtering samples
+without retained PPE boxes and exact duplicates, the combined dataset contains
+12,974 train, 3,100 validation, and 1,613 test images.
+
 ## Directory layout
 
 Put source images and matching YOLO label files here:

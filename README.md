@@ -10,17 +10,23 @@ recording potential violations.
   Person, and Vest.
 - PPE association and configurable required-equipment rules.
 - Webcam monitoring and a Flask dashboard.
+- Live monitoring can be started, stopped, or restarted from the dashboard;
+  leaving the Live tab stops the camera and releases it.
 - SQLite storage for violation records and evidence images.
 - Dataset integrity checking and model training scripts.
 
 ## Dataset
 
 The merged YOLO dataset is in `dataset/`, with train, validation, and test
-splits. The class IDs are defined in `dataset/data.yaml`; Glove is class `3`.
+splits (12,974 / 3,100 / 1,613 images). The class IDs are defined in
+`dataset/data.yaml`; Glove is class `3`.
 Dataset structure and annotation guidance are documented in
 [`PPE_DATASET.md`](PPE_DATASET.md).
 The original Roboflow dataset attribution and its CC BY 4.0 license are
-preserved in `dataset/README.dataset.txt`.
+preserved in `dataset/README.dataset.txt`. Added PPE_Dectection v4 data and
+its class mapping are attributed in `dataset/README.supplement.txt`. The
+Kaggle PPE supplement is attributed in `dataset/README.kaggle.txt`; see
+[`PPE_DATASET.md`](PPE_DATASET.md) for combined dataset details.
 
 Validate the dataset from the project root:
 
@@ -42,8 +48,9 @@ pip install -r requirements.txt
 
 ## Train
 
-The training script uses `yolo11n.pt` as its pretrained starting point and
-writes run outputs under `runs/`:
+The training script fine-tunes the latest `ppe_safety_model_v*` checkpoint when
+one exists; otherwise it starts from `yolo11n.pt`. Run outputs are written
+under `runs/`:
 
 ```powershell
 python train.py
@@ -64,11 +71,10 @@ python webcam.py
 python app.py
 ```
 
-The webcam and detection scripts currently target the V3 run path. V3 training
-and evaluation are in progress; the V3 checkpoint is not included here and
-should not be treated as a final validated model. Camera performance depends
-on lighting, camera placement, and detection quality. Confirm detections
-manually before relying on alerts for safety decisions.
+The dashboard selects the newest `ppe_safety_model_v*` checkpoint. The webcam
+and standalone detection scripts still target the V3 run path. Camera
+performance depends on lighting, camera placement, and detection quality.
+Confirm detections manually before relying on alerts for safety decisions.
 
 ## Project layout
 
